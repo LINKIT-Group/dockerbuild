@@ -1,0 +1,20 @@
+version: '3.4'
+services:
+  main:
+    container_name: ${PROJECT_NAME}
+    hostname: ${PROJECT_NAME}
+    environment:
+      - UID=${HOST_UID:-4000}
+      - PYTHONPATH=/git/${PROJECT_NAME}
+      - PROJECTS_HOME=/git/${PROJECT_NAME}/projects
+    user: ${HOST_USER:-nodummy}
+    image: ${PROJECT_NAME}:${HOST_USER:-nodummy}
+    build:
+      context: .
+      target: user
+      dockerfile: Dockerfile
+      args:
+        - HOST_UID=${HOST_UID:-4000}
+        - HOST_USER=${HOST_USER:-nodummy}
+    volumes:
+      - ${PWD:-.}:/git/${PROJECT_NAME}
