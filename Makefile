@@ -39,7 +39,7 @@ export HOST_UID
 # run should be the first target. So instead of: make run run="whoami", we can type: make run="whoami".
 # more examples: make run c="whoami && env", make run c="echo hello container space".
 # leave the double quotes to prevent commands overflowing in makefile (things like && would break)
-# special chars: '',"",|,&&,||,*,^,[], should all work. Except "$" and "`", if someone knows how, let me now!).
+# special chars: '',"",|,&&,||,*,^,[], should all work. Except "$" and "`", if someone knows how, let me know!).
 # escaping (\) does work on most chars, except double quotes (if someone knows how, let me know!)
 # i.e. works on most cases. For everything else perhaps more useful to upload a script and execute that.
 # to enter a container, just fill in "/bin/sh" or "/bin/bash" (assuming either shell is available).
