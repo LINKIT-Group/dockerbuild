@@ -40,7 +40,7 @@ export HOST_USER
 export HOST_UID
 
 # all our targets are phony (no files to check).
-.PHONY: shell help build rebuild service test clean prune
+.PHONY: shell help build rebuild service login test clean prune
 
 # suppress makes own output
 #.SILENT:
@@ -68,6 +68,8 @@ help:
 	@echo '  build    	build docker --image-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
 	@echo '  rebuild  	rebuild docker --image-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
 	@echo '  test     	test docker --container-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
+	@echo '  service   	run as service --container-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
+	@echo '  login   	run as service and login --container-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
 	@echo '  clean    	remove docker --image-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
 	@echo '  prune    	shortcut for docker system prune -af. Cleanup inactive containers and cache.'
 	@echo '  shell      run docker --container-- for current user: $(HOST_USER)(uid=$(HOST_UID))'

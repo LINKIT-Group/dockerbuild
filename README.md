@@ -21,6 +21,8 @@ make help
 #   build    	build docker --image-- for current user
 #   rebuild  	rebuild docker --image-- for current user
 #   test     	test docker --container-- for current user
+#   service   	run as service --container-- for current user
+#   login   	run as service and login --container-- for current user
 #   clean    	remove docker --image-- for current user
 #   prune    	shortcut for docker system prune -af. Cleanup inactive containers and cache.
 #   shell      run docker --container-- for current user
