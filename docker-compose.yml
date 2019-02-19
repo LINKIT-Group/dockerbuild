@@ -12,8 +12,6 @@ services:
     # These variables are passed into the container.
     environment:
       - UID=${HOST_UID:-4000}
-      - PYTHONPATH=/git/${PROJECT_NAME}
-      - PROJECTS_HOME=/git/${PROJECT_NAME}/projects
     # Run with user priviliges by default.
     user: ${HOST_USER:-nodummy}
     image: ${PROJECT_NAME}:${HOST_USER:-nodummy}
