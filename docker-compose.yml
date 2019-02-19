@@ -5,20 +5,29 @@
 version: '3.4'
 services:
   main:
-    container_name: ${PROJECT_NAME}
+    # Makefile fills PROJECT_NAME to current directory name.
+    # add UID to allow multiple users run this in parallel
+    container_name: ${PROJECT_NAME}_${HOST_UID:-4000}
     hostname: ${PROJECT_NAME}
+    # These variables are passed into the container.
     environment:
       - UID=${HOST_UID:-4000}
       - PYTHONPATH=/git/${PROJECT_NAME}
       - PROJECTS_HOME=/git/${PROJECT_NAME}/projects
+    # Run with user priviliges by default.
     user: ${HOST_USER:-nodummy}
     image: ${PROJECT_NAME}:${HOST_USER:-nodummy}
     build:
       context: .
+      # Build for current user.
       target: user
       dockerfile: Dockerfile
+      # These variables are passed to Dockerfile.
       args:
         - HOST_UID=${HOST_UID:-4000}
         - HOST_USER=${HOST_USER:-nodummy}
+    # Run container as a service. Replace with something useful.
+    command: ["tail", "-f", "/dev/null"]
+    # Copy current (git-) project into container.
     volumes:
-      - ${PWD:-.}:/git/${PROJECT_NAME}
+      - ${PWD:-.}:/home/${HOST_USER}/${PROJECT_NAME}
