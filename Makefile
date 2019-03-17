@@ -11,7 +11,9 @@ PWD ?= pwd_unknown
 
 # PROJECT_NAME defaults to name of the current directory.
 # should not to be changed if you follow GitOps operating procedures.
-PROJECT_NAME = $(notdir $(PWD))
+space:=
+space+=
+PROJECT_NAME = $(notdir $(subst $(space),_,$(PWD)))
 
 # Note. If you change this, you also need to update docker-compose.yml.
 # only useful in a setting with multiple services/ makefiles.
