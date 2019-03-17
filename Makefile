@@ -11,7 +11,9 @@ PWD ?= pwd_unknown
 
 # PROJECT_NAME defaults to name of the current directory.
 # should not to be changed if you follow GitOps operating procedures.
-PROJECT_NAME = $(notdir $(PWD))
+space:=
+space+=
+PROJECT_NAME = $(notdir $(subst $(space),_,$(PWD)))
 
 # Note. If you change this, you also need to update docker-compose.yml.
 # only useful in a setting with multiple services/ makefiles.
@@ -80,34 +82,34 @@ help:
 	@echo 'user=:	make shell user=root (no need to set uid=0)'
 	@echo 'uid=:	make shell user=dummy uid=4000 (defaults to 0 if user= set)'
 
+# force a rebuild by passing --no-cache
 rebuild:
-	# force a rebuild by passing --no-cache
 	docker-compose build --no-cache $(SERVICE_TARGET)
 
+# run as a (background) service
 service:
-	# run as a (background) service
 	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) up -d $(SERVICE_TARGET)
 
+# run as a service and attach to it
 login: service
-	# run as a service and attach to it
 	docker exec -it $(PROJECT_NAME)_$(HOST_UID) sh
 
+# only build the container. Note, docker does this also if you apply other targets.
 build:
-	# only build the container. Note, docker does this also if you apply other targets.
 	docker-compose build $(SERVICE_TARGET)
 
+# remove created images
 clean:
-	# remove created images
 	@docker-compose -p $(PROJECT_NAME)_$(HOST_UID) down --remove-orphans --rmi all 2>/dev/null \
 	&& echo 'Image(s) for "$(PROJECT_NAME):$(HOST_USER)" removed.' \
 	|| echo 'Image(s) for "$(PROJECT_NAME):$(HOST_USER)" already removed.'
 
+# clean all that is not actively used
 prune:
-	# clean all that is not actively used
 	docker system prune -af
 
+# here it is useful to add your own customised tests
 test:
-	# here it is useful to add your own customised tests
 	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) run --rm $(SERVICE_TARGET) sh -c '\
 		echo "I am `whoami`. My uid is `id -u`." && echo "Docker runs!"' \
 	&& echo success
