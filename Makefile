@@ -1,17 +1,14 @@
 # --------------------------------------------------------------------
-# Copyright (c) 2019 LINKIT, The Netherlands. All Rights Reserved.
-# Author(s): Anthony Potappel
+# Copyright (c) 2019 LINKIT, The Netherlands, 2020 talon.computer. All Rights Reserved.
+# Author(s): Anthony Potappel, Talon Poole
 # 
 # This software may be modified and distributed under the terms of the
 # MIT license. See the LICENSE file for details.
 # --------------------------------------------------------------------
 
-# If you see pwd_unknown showing up, this is why. Re-calibrate your system.
-PWD ?= pwd_unknown
-
 # PROJECT_NAME defaults to name of the current directory.
 # should not to be changed if you follow GitOps operating procedures.
-PROJECT_NAME = $(notdir $(PWD))
+PROJECT_NAME = $(notdir $(CURDIR))
 
 # Note. If you change this, you also need to update docker-compose.yml.
 # only useful in a setting with multiple services/ makefiles.
@@ -19,11 +16,18 @@ SERVICE_TARGET := main
 
 # if vars not set specifially: try default to environment, else fixed value.
 # strip to ensure spaces are removed in future editorial mistakes.
-# tested to work consistently on popular Linux flavors and Mac.
+# tested to work consistently on popular Linux flavors, Mac and Windows.
 ifeq ($(user),)
+# "Docker for Windows is internally using network shares (SMB) to mount Docker volumes. This does not require synchronizing file and directory permissions via uid and gid."
+# https://devilbox.readthedocs.io/en/latest/howto/uid-and-gid/find-uid-and-gid-on-win.html
+ifeq ($(OS),Windows_NT)
+HOST_USER ?= root
+HOST_UID ?= 0
+else
 # USER retrieved from env, UID from shell.
 HOST_USER ?= $(strip $(if $(USER),$(USER),nodummy))
 HOST_UID ?= $(strip $(if $(shell id -u),$(shell id -u),4000))
+endif
 else
 # allow override by adding user= and/ or uid=  (lowercase!).
 # uid= defaults to 0 if user= set (i.e. root).
@@ -53,10 +57,10 @@ export HOST_UID
 # i.e. works on most cases. For everything else perhaps more useful to upload a script and execute that.
 shell:
 ifeq ($(CMD_ARGUMENTS),)
-	# no command is given, default to shell
+# no command is given, default to shell
 	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) run --rm $(SERVICE_TARGET) sh
 else
-	# run the command
+# run the command
 	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) run --rm $(SERVICE_TARGET) sh -c "$(CMD_ARGUMENTS)"
 endif
 
@@ -81,33 +85,33 @@ help:
 	@echo 'uid=:	make shell user=dummy uid=4000 (defaults to 0 if user= set)'
 
 rebuild:
-	# force a rebuild by passing --no-cache
+# force a rebuild by passing --no-cache
 	docker-compose build --no-cache $(SERVICE_TARGET)
 
 service:
-	# run as a (background) service
+# run as a (background) service
 	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) up -d $(SERVICE_TARGET)
 
 login: service
-	# run as a service and attach to it
+# run as a service and attach to it
 	docker exec -it $(PROJECT_NAME)_$(HOST_UID) sh
 
 build:
-	# only build the container. Note, docker does this also if you apply other targets.
+# only build the container. Note, docker does this also if you apply other targets.
 	docker-compose build $(SERVICE_TARGET)
 
 clean:
-	# remove created images
+# remove created images
 	@docker-compose -p $(PROJECT_NAME)_$(HOST_UID) down --remove-orphans --rmi all 2>/dev/null \
 	&& echo 'Image(s) for "$(PROJECT_NAME):$(HOST_USER)" removed.' \
 	|| echo 'Image(s) for "$(PROJECT_NAME):$(HOST_USER)" already removed.'
 
 prune:
-	# clean all that is not actively used
+# clean all that is not actively used
 	docker system prune -af
 
 test:
-	# here it is useful to add your own customised tests
+# here it is useful to add your own customised tests
 	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) run --rm $(SERVICE_TARGET) sh -c '\
 		echo "I am `whoami`. My uid is `id -u`." && echo "Docker runs!"' \
 	&& echo success
